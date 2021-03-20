@@ -20,16 +20,6 @@ resource "google_bigquery_dataset" "dataset" {
   dataset_id                  = "datalake"
   friendly_name               = "datalake"
   location                    = var.region
-
-  labels = {
-    env = "default"
-  }
-
-  access {
-    role          = "OWNER"
-    user_by_email = google_service_account.bqowner.email
-  }
-
 }
 
 resource "random_string" "bucket" {
@@ -43,7 +33,14 @@ resource "google_storage_bucket" "bucket" {
   location = var.region
 }
 
-resource "google_service_account" "bqowner" {
-  account_id   = "bigquery-owner"
-  display_name = "BigQuery Owner Service Account"
+resource "google_notebooks_instance" "instance" {
+  name = "ai-notebook"
+  location = var.zone
+  machine_type = "n1-standard-4"
+  vm_image {
+    project      = "deeplearning-platform-release"
+    image_family = "tf-latest-cpu"
+  }
+
+  desired_status = "TERMINATED"
 }
